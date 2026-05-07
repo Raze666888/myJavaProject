@@ -1,0 +1,33 @@
+# Maven
+target/
+*.jar
+*.war
+*.ear
+
+# IDE
+.idea/
+*.iml
+*.iws
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Database
+*.db
+*.sqlite
+
+# Application specific
+application-local.properties
+
+# Environment variables
+.env
+.env.local
+.env.production

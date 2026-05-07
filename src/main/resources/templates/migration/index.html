@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Migration Tool</title>
+    <link href="/static/element/element.css" rel="stylesheet">
+    <link href="/static/hAdmin/css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="/static/hAdmin/css/plugins/toastr/toastr.min.css" rel="stylesheet">
+    <script src="/static/DemoBootStrap/js/vue.js"></script>
+    <script src="/static/element/element.js"></script>
+    <script src="/static/hAdmin/js/plugins/toastr/toastr.min.js"></script>
+    <script src="/static/js/GloJs.js"></script>
+    <style>
+        .migration-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .migration-card {
+            margin-bottom: 20px;
+        }
+        .warning-text {
+            color: #E6A23C;
+            font-weight: bold;
+        }
+        .success-text {
+            color: #67C23A;
+        }
+        .error-text {
+            color: #F56C6C;
+        }
+    </style>
+</head>
+<body>
+<div id="app" class="migration-container">
+    <el-card class="migration-card">
+        <div slot="header" class="clearfix">
+            <span style="font-size: 18px; font-weight: bold;">
+                <i class="fa fa-cloud-upload"></i> Image Migration to OSS Tool
+            </span>
+        </div>
+        
+        <el-alert
+            title="Important Notice"
+            type="warning"
+            :closable="false"
+            show-icon>
+            <p>This tool will migrate locally stored images to Alibaba Cloud OSS. Please ensure before execution:</p>
+            <ul>
+                <li>OSS parameters are correctly configured</li>
+                <li>OSS account has sufficient storage space</li>
+                <li>Recommended to execute during maintenance time to avoid affecting user access</li>
+                <li>Please backup the database before execution</li>
+            </ul>
+        </el-alert>
+        
+        <div style="margin-top: 20px;">
+            <h3>Migration Options</h3>
+            
+            <el-row :gutter="20" style="margin-top: 20px;">
+                <el-col :span="12">
+                    <el-card class="migration-card">
+                        <div slot="header">
+                            <i class="fa fa-shopping-cart"></i> Product Image Migration
+                        </div>
+                        <p>Migrate all product main images and detail images</p>
+                        <el-button 
+                            type="primary" 
+                            :loading="productLoading"
+                            @click="migrateProducts">
+                            <i class="fa fa-upload"></i> Migrate Product Images
+                        </el-button>
+                    </el-card>
+                </el-col>
+                
+                <el-col :span="12">
+                    <el-card class="migration-card">
+                        <div slot="header">
+                            <i class="fa fa-user"></i> User Avatar Migration
+                        </div>
+                        <p>Migrate all user avatar images</p>
+                        <el-button 
+                            type="primary" 
+                            :loading="userLoading"
+                            @click="migrateUsers">
+                            <i class="fa fa-upload"></i> Migrate User Avatars
+                        </el-button>
+                    </el-card>
+                </el-col>
+            </el-row>
+            
+            <el-row :gutter="20" style="margin-top: 20px;">
+                <el-col :span="12">
+                    <el-card class="migration-card">
+                        <div slot="header">
+                            <i class="fa fa-bullhorn"></i> Announcement Image Migration
+                        </div>
+                        <p>Migrate all announcement images</p>
+                        <el-button 
+                            type="primary" 
+                            :loading="noticeLoading"
+                            @click="migrateNotices">
+                            <i class="fa fa-upload"></i> Migrate Announcement Images
+                        </el-button>
+                    </el-card>
+                </el-col>
+                
+                <el-col :span="12">
+                    <el-card class="migration-card">
+                        <div slot="header">
+                            <i class="fa fa-file-image-o"></i> Static Image Migration
+                        </div>
+                        <p>Migrate images in static/img folder</p>
+                        <el-button 
+                            type="primary" 
+                            :loading="staticLoading"
+                            @click="migrateStatic">
+                            <i class="fa fa-upload"></i> Migrate Static Images
+                        </el-button>
+                    </el-card>
+                </el-col>
+            </el-row>
+            
+            <el-divider></el-divider>
+            
+            <el-card class="migration-card">
+                <div slot="header" class="warning-text">
+                    <i class="fa fa-exclamation-triangle"></i> One-Click Migrate All Images
+                </div>
+                <p>This will migrate all types of images, including product images, user avatars, announcement images and static images.</p>
+                <p class="warning-text">Note: This is a time-consuming operation, please ensure network stability!</p>
+                <el-button 
+                    type="danger" 
+                    size="large"
+                    :loading="allLoading"
+                    @click="migrateAll">
+                    <i class="fa fa-cloud-upload"></i> One-Click Migrate All Images
+                </el-button>
+            </el-card>
+        </div>
+        
+        <div v-if="logs.length > 0" style="margin-top: 30px;">
+            <h3>Migration Log</h3>
+            <el-card>
+                <div v-for="(log, index) in logs" :key="index" 
+                     :class="{'success-text': log.type === 'success', 'error-text': log.type === 'error'}">
+                    <i :class="log.type === 'success' ? 'fa fa-check' : 'fa fa-times'"></i>
+                    {{ log.time }} - {{ log.message }}
+                </div>
+            </el-card>
+        </div>
+    </el-card>
+</div>
+
+<script>
+new Vue({
+    el: '#app',
+    data() {
+        return {
+            baseUrl: Glo_BaseUrl,
+            productLoading: false,
+            userLoading: false,
+            noticeLoading: false,
+            staticLoading: false,
+            allLoading: false,
+            logs: []
+        }
+    },
+    methods: {
+        addLog(message, type = 'success') {
+            this.logs.unshift({
+                time: new Date().toLocaleTimeString(),
+                message: message,
+                type: type
+            });
+            // Keep only the latest 20 logs
+            if (this.logs.length > 20) {
+                this.logs = this.logs.slice(0, 20);
+            }
+        },
+        
+        migrateProducts() {
+            this.productLoading = true;
+            this.addLog('Starting product image migration...', 'info');
+            
+            $.ajax({
+                url: this.baseUrl + '/api/migration/migrateProducts',
+                type: 'POST',
+                success: (data) => {
+                    this.productLoading = false;
+                    if (data.code === 200) {
+                        this.addLog('Product image migration successful!', 'success');
+                        toastr.success('Product image migration successful!');
+                    } else {
+                        this.addLog('Product image migration failed: ' + data.msg, 'error');
+                        toastr.error('Product image migration failed: ' + data.msg);
+                    }
+                },
+                error: () => {
+                    this.productLoading = false;
+                    this.addLog('Product image migration failed: Network error', 'error');
+                    toastr.error('Network error, please retry');
+                }
+            });
+        },
+        
+        migrateUsers() {
+            this.userLoading = true;
+            this.addLog('Starting user avatar migration...', 'info');
+            
+            $.ajax({
+                url: this.baseUrl + '/api/migration/migrateUsers',
+                type: 'POST',
+                success: (data) => {
+                    this.userLoading = false;
+                    if (data.code === 200) {
+                        this.addLog('User avatar migration successful!', 'success');
+                        toastr.success('User avatar migration successful!');
+                    } else {
+                        this.addLog('User avatar migration failed: ' + data.msg, 'error');
+                        toastr.error('User avatar migration failed: ' + data.msg);
+                    }
+                },
+                error: () => {
+                    this.userLoading = false;
+                    this.addLog('User avatar migration failed: Network error', 'error');
+                    toastr.error('Network error, please retry');
+                }
+            });
+        },
+        
+        migrateNotices() {
+            this.noticeLoading = true;
+            this.addLog('Starting announcement image migration...', 'info');
+            
+            $.ajax({
+                url: this.baseUrl + '/api/migration/migrateNotices',
+                type: 'POST',
+                success: (data) => {
+                    this.noticeLoading = false;
+                    if (data.code === 200) {
+                        this.addLog('Announcement image migration successful!', 'success');
+                        toastr.success('Announcement image migration successful!');
+                    } else {
+                        this.addLog('Announcement image migration failed: ' + data.msg, 'error');
+                        toastr.error('Announcement image migration failed: ' + data.msg);
+                    }
+                },
+                error: () => {
+                    this.noticeLoading = false;
+                    this.addLog('Announcement image migration failed: Network error', 'error');
+                    toastr.error('Network error, please retry');
+                }
+            });
+        },
+        
+        migrateStatic() {
+            this.staticLoading = true;
+            this.addLog('Starting static image migration...', 'info');
+            
+            $.ajax({
+                url: this.baseUrl + '/api/migration/migrateStatic',
+                type: 'POST',
+                success: (data) => {
+                    this.staticLoading = false;
+                    if (data.code === 200) {
+                        this.addLog('Static image migration successful!', 'success');
+                        toastr.success('Static image migration successful!');
+                    } else {
+                        this.addLog('Static image migration failed: ' + data.msg, 'error');
+                        toastr.error('Static image migration failed: ' + data.msg);
+                    }
+                },
+                error: () => {
+                    this.staticLoading = false;
+                    this.addLog('Static image migration failed: Network error', 'error');
+                    toastr.error('Network error, please retry');
+                }
+            });
+        },
+        
+        migrateAll() {
+            this.$confirm('Are you sure you want to migrate all images? This operation may take a long time.', 'Confirm Migration', {
+                confirmButtonText: 'Confirm',
+                cancelButtonText: 'Cancel',
+                type: 'warning'
+            }).then(() => {
+                this.allLoading = true;
+                this.addLog('Starting migration of all images...', 'info');
+                
+                $.ajax({
+                    url: this.baseUrl + '/api/migration/migrateAll',
+                    type: 'POST',
+                    timeout: 300000, // 5 minute timeout
+                    success: (data) => {
+                        this.allLoading = false;
+                        if (data.code === 200) {
+                            this.addLog('All images migration successful!', 'success');
+                            toastr.success('All images migration successful!');
+                        } else {
+                            this.addLog('Image migration failed: ' + data.msg, 'error');
+                            toastr.error('Image migration failed: ' + data.msg);
+                        }
+                    },
+                    error: () => {
+                        this.allLoading = false;
+                        this.addLog('Image migration failed: Network error or timeout', 'error');
+                        toastr.error('Network error or timeout, please retry');
+                    }
+                });
+            });
+        }
+    }
+});
+</script>
+</body>
+</html>

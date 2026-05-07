@@ -1,3 +1,10 @@
 {
-    "java.compile.nullAnalysis.mode": "automatic"
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "java.compile.nullAnalysis.mode": "automatic",
+    "claude-code.environmentVariables": [
+    {
+      "name": "ANTHROPIC_AUTH_TOKEN",
+      "value": "2dcfa8bb01c9484aa21289339a615616.iYorwpbvIANBz3CQ"
+    }
+  ]
 }
