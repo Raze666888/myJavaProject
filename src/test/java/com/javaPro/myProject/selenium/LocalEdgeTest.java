@@ -29,7 +29,7 @@ public class LocalEdgeTest {
     private EdgeDriverService service;
     private static final String BASE_URL = "http://localhost:7002";
     private static final String LOGIN_PAGE_URL = BASE_URL + "/login";
-    private static final String LOCAL_DRIVER_PATH = "D:\\edgedriver_win64\\msedgedriver.exe";
+    private static final String LOCAL_DRIVER_PATH = "drivers/msedgedriver";
 
     // 测试用户凭据
     private static final String ADMIN_USERNAME = "admin";

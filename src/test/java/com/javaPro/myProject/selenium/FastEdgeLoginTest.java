@@ -46,8 +46,8 @@ public class FastEdgeLoginTest {
         
         try {
             // 直接设置系统属性，避免网络连接
-            System.setProperty("webdriver.edge.driver", "D:\\edgedriver_win64\\msedgedriver.exe");
-            System.out.println("✅ 使用本地Edge驱动配置");
+            System.setProperty("webdriver.edge.driver", "drivers/msedgedriver");
+            System.out.println("✅ 使用linux版本Edge驱动配置");
         } catch (Exception e) {
             System.out.println("⚠ 驱动配置警告: " + e.getMessage());
         }

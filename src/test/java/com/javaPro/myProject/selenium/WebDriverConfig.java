@@ -15,7 +15,7 @@ import java.io.File;
 public class WebDriverConfig {
     
     // Edge驱动路径
-    private static final String LOCAL_EDGE_DRIVER_PATH = "D:\\edgedriver_win64\\msedgedriver.exe";
+    private static final String LOCAL_EDGE_DRIVER_PATH = "drivers/msedgedriver";
     
     /**
      * 配置Edge驱动（优先使用本地驱动）
