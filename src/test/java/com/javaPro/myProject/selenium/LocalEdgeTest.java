@@ -104,6 +104,10 @@ public class LocalEdgeTest {
     private EdgeOptions createRobustEdgeOptions() {
         EdgeOptions options = new EdgeOptions();
 
+        // 无头模式 - CI环境必需
+        options.addArguments("--headless=new");
+        options.addArguments("--window-size=1920,1080");
+
         // 基础稳定性选项
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");
@@ -113,7 +117,6 @@ public class LocalEdgeTest {
         options.addArguments("--disable-features=VizDisplayCompositor");
 
         // 窗口管理
-        options.addArguments("--start-maximized");
         options.addArguments("--disable-infobars");
 
         // 性能优化

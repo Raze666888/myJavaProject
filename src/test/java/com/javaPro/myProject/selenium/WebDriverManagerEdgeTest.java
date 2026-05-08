@@ -100,16 +100,19 @@ public class WebDriverManagerEdgeTest {
      */
     private EdgeOptions createEdgeOptions() {
         EdgeOptions options = new EdgeOptions();
-        
+
+        // 无头模式 - CI环境必需
+        options.addArguments("--headless=new");
+        options.addArguments("--window-size=1920,1080");
+
         // 基础稳定性选项
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");
         options.addArguments("--disable-gpu");
         options.addArguments("--remote-allow-origins=*");
         options.addArguments("--disable-web-security");
-        
+
         // 窗口管理
-        options.addArguments("--start-maximized");
         options.addArguments("--disable-infobars");
         
         // 性能优化
