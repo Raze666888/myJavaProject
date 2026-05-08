@@ -54,19 +54,19 @@ public class FastEdgeLoginTest {
 
         // 3. 极速配置Edge选项
         EdgeOptions options = new EdgeOptions();
-        
+
         // 无头模式 - 最大速度提升
         if (HEADLESS_MODE) {
-            options.addArguments("--headless");
+            options.addArguments("--headless=new");
             options.addArguments("--window-size=1280,720");
         }
-        
+
         // 极速优化配置
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");
         options.addArguments("--disable-gpu");
-        options.addArguments("--disable-images");
-        options.addArguments("--disable-javascript");
+        options.addArguments("--remote-allow-origins=*");
+        // 注意：不禁用JavaScript，因为登录功能可能需要JS
         options.addArguments("--disable-plugins");
         options.addArguments("--disable-extensions");
         options.addArguments("--disable-background-timer-throttling");

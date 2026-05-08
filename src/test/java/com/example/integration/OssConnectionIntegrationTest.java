@@ -10,6 +10,7 @@ import com.javaPro.myProject.service.FileUploadService;
 import com.javaPro.myProject.service.OssDirectUploadService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,10 +32,13 @@ import static org.junit.jupiter.api.Assertions.*;
  * 1. application.yml中的OSS配置已正确设置
  * 2. oss.enabled=true
  * 3. AccessKey和Secret已更新为最新值
+ *
+ * 注：CI环境中禁用此测试，需要真实的OSS连接
  */
 @SpringBootTest
 @ActiveProfiles("test")
 @DisplayName("OSS连接集成测试")
+@Disabled("需要真实的OSS连接，在CI环境中禁用")
 public class OssConnectionIntegrationTest {
 
     @Autowired(required = false)

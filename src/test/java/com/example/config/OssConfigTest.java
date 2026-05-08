@@ -4,11 +4,13 @@ import com.javaPro.myProject.SchedulingApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(classes = SchedulingApplication.class)
+@SpringBootTest(classes = SchedulingApplication.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@ActiveProfiles("test")
 @TestPropertySource(properties = {
     "oss.endpoint=https://test-endpoint.com",
     "oss.accessKeyId=test-key",
