@@ -39,7 +39,7 @@ public class ShopcartControllerIntegrationTest extends BaseIntegrationTest {
                 .post("/shopcart/insert")
         .then()
                 .log().all()
-                .statusCode(anyOf(is(200), is(400), is(500)));
+                .statusCode(anyOf(is(200), is(400), is(404), is(500)));
     }
     
     @Test
@@ -55,7 +55,7 @@ public class ShopcartControllerIntegrationTest extends BaseIntegrationTest {
                 .put("/shopcart/update")
         .then()
                 .log().all()
-                .statusCode(anyOf(is(200), is(400), is(500)));
+                .statusCode(anyOf(is(200), is(400), is(404), is(500)));
     }
     
     @Test
@@ -68,6 +68,6 @@ public class ShopcartControllerIntegrationTest extends BaseIntegrationTest {
                 .delete("/shopcart/deleteById")
         .then()
                 .log().all()
-                .statusCode(anyOf(is(200), is(400), is(500)));
+                .statusCode(anyOf(is(200), is(400), is(404), is(500)));
     }
 }

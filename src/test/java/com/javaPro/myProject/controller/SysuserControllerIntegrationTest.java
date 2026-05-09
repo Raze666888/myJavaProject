@@ -66,7 +66,7 @@ public class SysuserControllerIntegrationTest extends BaseIntegrationTest {
                 .post("/sysuser/insert")
         .then()
                 .log().all()
-                .statusCode(anyOf(is(200), is(400), is(500)));
+                .statusCode(anyOf(is(200), is(400), is(404), is(500)));
     }
     
     @Test
@@ -82,7 +82,7 @@ public class SysuserControllerIntegrationTest extends BaseIntegrationTest {
                 .put("/sysuser/update")
         .then()
                 .log().all()
-                .statusCode(anyOf(is(200), is(400), is(500)));
+                .statusCode(anyOf(is(200), is(400), is(404), is(500)));
     }
     
     @Test

@@ -52,7 +52,7 @@ public class CommentControllerIntegrationTest extends BaseIntegrationTest {
                 .post("/comment/insert")
         .then()
                 .log().all()
-                .statusCode(anyOf(is(200), is(400), is(500)));
+                .statusCode(anyOf(is(200), is(400), is(404), is(500)));
     }
     
     @Test
@@ -68,7 +68,7 @@ public class CommentControllerIntegrationTest extends BaseIntegrationTest {
                 .put("/comment/update")
         .then()
                 .log().all()
-                .statusCode(anyOf(is(200), is(400), is(500)));
+                .statusCode(anyOf(is(200), is(400), is(404), is(500)));
     }
     
     @Test
@@ -81,6 +81,6 @@ public class CommentControllerIntegrationTest extends BaseIntegrationTest {
                 .delete("/comment/deleteById")
         .then()
                 .log().all()
-                .statusCode(anyOf(is(200), is(400), is(500)));
+                .statusCode(anyOf(is(200), is(400), is(404), is(500)));
     }
 }

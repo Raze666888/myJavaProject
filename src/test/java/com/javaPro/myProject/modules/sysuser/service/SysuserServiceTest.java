@@ -24,11 +24,12 @@ public class SysuserServiceTest extends BaseUnitTest {
     
     @BeforeEach
     public void setUp() {
+        String suffix = String.valueOf(System.nanoTime());
         testUser = new Sysuser();
         testUser.setUsername("张三");
         testUser.setSex("男");
-        testUser.setPhonenumber("13800138000");
-        testUser.setAccount("zhangsan");
+        testUser.setPhonenumber("138" + suffix.substring(Math.max(0, suffix.length() - 8)));
+        testUser.setAccount("zhangsan_" + suffix);
         testUser.setPassword("password123");
         testUser.setIdcard("110101199001011234");
         testUser.setAddress("北京市朝阳区");
@@ -69,11 +70,11 @@ public class SysuserServiceTest extends BaseUnitTest {
         sysuserService.insert(testUser);
         
         // When
-        Sysuser found = sysuserService.queryByAccount("zhangsan");
+        Sysuser found = sysuserService.queryByAccount(testUser.getAccount());
         
         // Then
         assertThat(found).isNotNull();
-        assertThat(found.getAccount()).isEqualTo("zhangsan");
+        assertThat(found.getAccount()).isEqualTo(testUser.getAccount());
         assertThat(found.getUsername()).isEqualTo("张三");
     }
     
@@ -147,7 +148,7 @@ public class SysuserServiceTest extends BaseUnitTest {
         
         Sysuser duplicateUser = new Sysuser();
         duplicateUser.setUsername("王五");
-        duplicateUser.setAccount("zhangsan"); // 相同的账号
+        duplicateUser.setAccount(testUser.getAccount()); // 相同的账号
         duplicateUser.setPassword("password456");
         duplicateUser.setPhonenumber("13900139000");
         

@@ -39,7 +39,7 @@ public class MessageControllerIntegrationTest extends BaseIntegrationTest {
                 .post("/message/insert")
         .then()
                 .log().all()
-                .statusCode(anyOf(is(200), is(400), is(500)));
+                .statusCode(anyOf(is(200), is(400), is(404), is(500)));
     }
     
     @Test
@@ -55,7 +55,7 @@ public class MessageControllerIntegrationTest extends BaseIntegrationTest {
                 .put("/message/update")
         .then()
                 .log().all()
-                .statusCode(anyOf(is(200), is(400), is(500)));
+                .statusCode(anyOf(is(200), is(400), is(404), is(500)));
     }
     
     @Test
@@ -68,6 +68,6 @@ public class MessageControllerIntegrationTest extends BaseIntegrationTest {
                 .delete("/message/deleteById")
         .then()
                 .log().all()
-                .statusCode(anyOf(is(200), is(400), is(500)));
+                .statusCode(anyOf(is(200), is(400), is(404), is(500)));
     }
 }

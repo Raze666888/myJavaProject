@@ -102,7 +102,10 @@ private MessageDao messageDao;
             shopcarts = shopcartDao.queryAllByLimit(shopcart);
         }
         Sysuser sysuser = sysuserDao.queryById(order.getUserid());
-        Double money = sysuser.getMoney();
+        if (sysuser == null) {
+            return AjaxResult.error("用户不存在");
+        }
+        Double money = sysuser.getMoney() == null ? 0.0 : sysuser.getMoney();
         Double sum = 0.0;
         for (Shopcart item : shopcarts) {
             Product product = productDao.queryById(item.getProductid());

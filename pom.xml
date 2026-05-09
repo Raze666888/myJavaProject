@@ -302,9 +302,8 @@
                     </systemPropertyVariables>
                     <!-- 优化JVM参数以加快测试启动速度 -->
                     <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true -Xms256m -Xmx512m -XX:+UseG1GC</argLine>
-                    <!-- 并行执行测试以提升速度 -->
-                    <parallel>methods</parallel>
-                    <threadCount>2</threadCount>
+                    <!-- 关闭并行，避免共享测试数据互相污染 -->
+                    <parallel>none</parallel>
                     <forkCount>1</forkCount>
                     <reuseForks>true</reuseForks>
                     <!-- 快速失败 -->

@@ -27,7 +27,7 @@
     <!--查询指定行数据-->
     <select id="queryAllByLimit" resultMap="MessageMap">
         select
-        m.id, content, m.createtime, updatetime, senderid, receiveid, status,
+        m.id, m.content, m.createtime, m.updatetime, m.senderid, m.receiveid, m.status,
                s.username as senderName,r.username as receiverName
         from message m
         left join sysuser s on s.id = m.senderid
@@ -37,25 +37,25 @@
                 and m.id = #{id}
             </if>
             <if test="content != null and content != ''">
-                and content = #{content}
+                and m.content = #{content}
             </if>
             <if test="createtime != null">
                 and m.createtime = #{createtime}
             </if>
             <if test="updatetime != null">
-                and updatetime = #{updatetime}
+                and m.updatetime = #{updatetime}
             </if>
             <if test="senderid != null">
-                and senderid = #{senderid}
+                and m.senderid = #{senderid}
             </if>
             <if test="receiveid != null">
-                and receiveid = #{receiveid}
+                and m.receiveid = #{receiveid}
             </if>
             <if test="status != null and status != ''">
-                and status = #{status}
+                and m.status = #{status}
             </if>
         </where>
-order by createtime desc
+order by m.createtime desc
     </select>
 
     <!--统计总行数-->
@@ -148,7 +148,7 @@ order by createtime desc
     <!--获取聊天记录-->
     <select id="getChatMessages" resultMap="MessageMap">
         select
-            m.id, content, m.createtime, updatetime, senderid, receiveid, status,
+            m.id, m.content, m.createtime, m.updatetime, m.senderid, m.receiveid, m.status,
             s.username as senderName, s.role as senderRole,
             r.username as receiverName, r.role as receiverRole
         from message m

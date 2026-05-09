@@ -33,9 +33,9 @@
     <!--查询单个-->
     <select id="queryById" resultMap="ProductMap">
         select
-            p.id, productname, productdes, p.img, chengben, kedanjia, kucun, fahuotianshu, chandi, guige,
-            companyid, p.createtime, p.status, p.updatetime, producttype, spare1, spare2, detailimg,
-            service_start_time, service_end_time,
+            p.id, p.productname, p.productdes, p.img, p.chengben, p.kedanjia, p.kucun, p.fahuotianshu, p.chandi, p.guige,
+            p.companyid, p.createtime, p.status, p.updatetime, p.producttype, p.spare1, p.spare2, p.detailimg,
+            p.service_start_time, p.service_end_time,
             t.type_name,
             c.companyname as company_name, c.avg_rating as company_rating,
             c.rating_count as company_rating_count, c.service_area as company_service_area
@@ -48,9 +48,9 @@
     <!--查询指定行数据-->
     <select id="queryAllByLimit" resultMap="ProductMap">
         select
-          p.id, productname, productdes, p.img, chengben, kedanjia, kucun, fahuotianshu, chandi, guige,
-               companyid, p.createtime, p.status, p.updatetime, producttype, spare1, spare2, detailimg,
-               service_start_time, service_end_time,
+          p.id, p.productname, p.productdes, p.img, p.chengben, p.kedanjia, p.kucun, p.fahuotianshu, p.chandi, p.guige,
+               p.companyid, p.createtime, p.status, p.updatetime, p.producttype, p.spare1, p.spare2, p.detailimg,
+               p.service_start_time, p.service_end_time,
                t.type_name,
                c.companyname as company_name, c.avg_rating as company_rating,
                c.rating_count as company_rating_count, c.service_area as company_service_area
@@ -62,32 +62,32 @@
                 and p.id = #{id}
             </if>
             <if test="productname != null and productname != ''">
-                and productname like concat('%',#{productname},'%')
+                and p.productname like concat('%',#{productname},'%')
             </if>
             <if test="productdes != null and productdes != ''">
-                and productdes = #{productdes}
+                and p.productdes = #{productdes}
             </if>
 
             <if test="chengben != null and chengben != ''">
-                and chengben = #{chengben}
+                and p.chengben = #{chengben}
             </if>
             <if test="kedanjia != null and kedanjia != ''">
-                and kedanjia = #{kedanjia}
+                and p.kedanjia = #{kedanjia}
             </if>
             <if test="kucun != null and kucun != ''">
-                and kucun = #{kucun}
+                and p.kucun = #{kucun}
             </if>
             <if test="fahuotianshu != null and fahuotianshu != ''">
-                and fahuotianshu = #{fahuotianshu}
+                and p.fahuotianshu = #{fahuotianshu}
             </if>
             <if test="chandi != null and chandi != ''">
-                and chandi = #{chandi}
+                and p.chandi = #{chandi}
             </if>
             <if test="guige != null and guige != ''">
-                and guige = #{guige}
+                and p.guige = #{guige}
             </if>
             <if test="companyid != null">
-                and companyid = #{companyid}
+                and p.companyid = #{companyid}
             </if>
 
             <if test="status != null and status != ''">
@@ -95,13 +95,13 @@
             </if>
 
             <if test="producttype != null and producttype != ''">
-                and producttype = #{producttype}
+                and p.producttype = #{producttype}
             </if>
             <if test="spare1 != null and spare1 != ''">
-                and spare1 = #{spare1}
+                and p.spare1 = #{spare1}
             </if>
             <if test="spare2 != null and spare2 != ''">
-                and spare2 = #{spare2}
+                and p.spare2 = #{spare2}
             </if>
             <!-- 时间段筛选 - 修改逻辑让全天服务也能在各时间段显示 -->
             <if test="serviceStartTime != null and serviceStartTime != '' and serviceEndTime != null and serviceEndTime != ''">
@@ -126,7 +126,7 @@
             </if>
 
         </where>
-order by createtime desc
+order by p.createtime desc
     </select>
 
     <!--统计总行数-->
@@ -136,55 +136,55 @@ order by createtime desc
         left join company c on c.id = p.companyid
         <where>
             <if test="id != null">
-                and id = #{id}
+                and p.id = #{id}
             </if>
             <if test="productname != null and productname != ''">
-                and productname = #{productname}
+                and p.productname = #{productname}
             </if>
             <if test="productdes != null and productdes != ''">
-                and productdes = #{productdes}
+                and p.productdes = #{productdes}
             </if>
             <if test="img != null and img != ''">
-                and img = #{img}
+                and p.img = #{img}
             </if>
             <if test="chengben != null and chengben != ''">
-                and chengben = #{chengben}
+                and p.chengben = #{chengben}
             </if>
             <if test="kedanjia != null and kedanjia != ''">
-                and kedanjia = #{kedanjia}
+                and p.kedanjia = #{kedanjia}
             </if>
             <if test="kucun != null and kucun != ''">
-                and kucun = #{kucun}
+                and p.kucun = #{kucun}
             </if>
             <if test="fahuotianshu != null and fahuotianshu != ''">
-                and fahuotianshu = #{fahuotianshu}
+                and p.fahuotianshu = #{fahuotianshu}
             </if>
             <if test="chandi != null and chandi != ''">
-                and chandi = #{chandi}
+                and p.chandi = #{chandi}
             </if>
             <if test="guige != null and guige != ''">
-                and guige = #{guige}
+                and p.guige = #{guige}
             </if>
             <if test="companyid != null">
-                and companyid = #{companyid}
+                and p.companyid = #{companyid}
             </if>
             <if test="createtime != null">
-                and createtime = #{createtime}
+                and p.createtime = #{createtime}
             </if>
             <if test="status != null and status != ''">
-                and status = #{status}
+                and p.status = #{status}
             </if>
             <if test="updatetime != null">
-                and updatetime = #{updatetime}
+                and p.updatetime = #{updatetime}
             </if>
             <if test="producttype != null and producttype != ''">
-                and producttype = #{producttype}
+                and p.producttype = #{producttype}
             </if>
             <if test="spare1 != null and spare1 != ''">
-                and spare1 = #{spare1}
+                and p.spare1 = #{spare1}
             </if>
             <if test="spare2 != null and spare2 != ''">
-                and spare2 = #{spare2}
+                and p.spare2 = #{spare2}
             </if>
             <!-- 时间段筛选 - 修改逻辑让全天服务也能在各时间段显示 -->
             <if test="serviceStartTime != null and serviceStartTime != '' and serviceEndTime != null and serviceEndTime != ''">
