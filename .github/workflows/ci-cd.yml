@@ -103,7 +103,9 @@ jobs:
       if: success() || failure()
       with:
         name: Integration Tests Report
-        path: target/surefire-reports/*IT.xml
+        path: |
+          target/surefire-reports/TEST-*.xml
+          target/failsafe-reports/TEST-*.xml
         reporter: java-junit
 
   # API测试任务
@@ -171,7 +173,9 @@ jobs:
       if: success() || failure()
       with:
         name: API Tests Report
-        path: target/surefire-reports/*IntegrationTest.xml
+        path: |
+          target/surefire-reports/TEST-*.xml
+          target/failsafe-reports/TEST-*.xml
         reporter: java-junit
 
   # 代码质量检查
