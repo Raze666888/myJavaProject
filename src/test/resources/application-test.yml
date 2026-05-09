@@ -36,3 +36,10 @@ logging:
     org.springframework.web: INFO
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+oss:
+  endpoint: http://oss.aliyuncs.com
+  bucketName: test-bucket
+  accessKeyId: test-key
+  accessKeySecret: test-secret
+  urlPrefix: http://localhost:7002/uploads/
