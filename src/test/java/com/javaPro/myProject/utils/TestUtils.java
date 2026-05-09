@@ -32,7 +32,7 @@ public class TestUtils {
      */
     public static boolean isJSONEqual(String json1, String json2) {
         try {
-            org.json.JSONAssert.assertEquals(json1, json2, false);
+            org.skyscreamer.jsonassert.JSONAssert.assertEquals(json1, json2, false);
             return true;
         } catch (Exception e) {
             return false;

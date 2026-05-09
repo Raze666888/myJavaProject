@@ -32,7 +32,7 @@ public class ProductServiceTest extends BaseUnitTest {
         testProduct.setKedanjia("100.00");
         testProduct.setKucun("10");
         testProduct.setFahuotianshu("1");
-        testProduct.setAddress("北京市朝阳区");
+        testProduct.setChandi("北京市朝阳区");
     }
     
     @Test
