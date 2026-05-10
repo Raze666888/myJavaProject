@@ -30,9 +30,20 @@
    - 运行SonarQube分析（可选）
    - 需要单元测试通过
 
-5. **测试汇总** (Test Summary)
-   - 汇总所有测试结果
-   - 在失败时发送通知
+5. **构建产物** (Build Artifact)
+   - 构建JAR包
+   - 上传构建产物
+
+6. **Docker镜像构建和推送** (Build and Push Docker Image)
+   - 构建多平台Docker镜像
+   - 推送到GitHub Container Registry
+   - 生成构建证明
+   - 仅在push到main分支时执行
+
+7. **生产环境部署** (Deploy to Production)
+   - 部署到生产环境
+   - 仅在push到main分支时执行
+   - 需要production环境批准
 
 ### 2. E2E测试流程 (e2e-tests.yml)
 **触发条件**:
@@ -42,7 +53,7 @@
 
 ## 所需的GitHub Secrets
 
-在GitHub项目设置中添加以下Secrets（如使用SonarQube）:
+在GitHub项目设置中添加以下Secrets（如使用相应功能）:
 
 ```
 SONAR_HOST_URL       # SonarQube服务器地址（可选）
@@ -50,7 +61,19 @@ SONAR_LOGIN          # SonarQube登录Token（可选）
 TEST_OSS_ENDPOINT    # 测试用OSS端点（可选）
 TEST_ACCESS_KEY      # 测试用Access Key（可选）
 TEST_ACCESS_SECRET   # 测试用Secret Key（可选）
+
+# CD部署相关（必需）
+GITHUB_TOKEN         # 自动提供，用于推送镜像到GHCR
 ```
+
+## 环境配置
+
+### 生产环境 (Production)
+在GitHub项目设置中创建名为 `production` 的环境，用于生产部署的额外保护。
+
+**环境设置**:
+- **Environment protection rules**: 启用 "Required reviewers"
+- **Deployment branches**: 限制为 `main` 分支
 
 ## 工作流日志查看
 
