@@ -63,7 +63,22 @@ TEST_ACCESS_KEY      # 测试用Access Key（可选）
 TEST_ACCESS_SECRET   # 测试用Secret Key（可选）
 
 # CD部署相关（必需）
-GITHUB_TOKEN         # 自动提供，用于推送镜像到GHCR
+GHCR_TOKEN           # 用于Ubuntu虚拟机拉取GHCR私有镜像（read:packages）
+GHCR_USERNAME        # GitHub用户名
+VM_HOST              # Ubuntu虚拟机IP
+VM_USER              # Ubuntu登录用户
+VM_SSH_KEY           # SSH私钥
+VM_SSH_PORT          # SSH端口（可选，默认22）
+VM_DEPLOY_PATH       # 部署目录（可选，默认/opt/myjavaproject）
+DB_ROOT_PASSWORD     # MySQL root密码
+DB_USERNAME          # 应用数据库用户名
+DB_PASSWORD          # 应用数据库密码
+REDIS_PASSWORD       # Redis密码（可为空）
+OSS_ENDPOINT         # OSS端点
+OSS_ACCESS_KEY_ID    # OSS Access Key
+OSS_ACCESS_KEY_SECRET # OSS Secret
+OSS_BUCKET_NAME      # OSS Bucket
+OSS_URL_PREFIX       # OSS访问前缀
 ```
 
 ## 环境配置

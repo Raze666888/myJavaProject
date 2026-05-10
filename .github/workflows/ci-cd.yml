@@ -13,6 +13,10 @@ permissions:
   actions: read
   packages: write
   id-token: write
+  attestations: write
+
+env:
+  IMAGE_NAME: ghcr.io/raze666888/myjavaproject
 
 jobs:
   # 单元测试任务
@@ -272,21 +276,17 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
+      attestations: write
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up JDK 8
-      uses: actions/setup-java@v4
+    - name: Download JAR artifact
+      uses: actions/download-artifact@v4
       with:
-        java-version: '8'
-        distribution: 'temurin'
-        cache: maven
-
-    - name: Build JAR package
-      run: mvn -B clean package -DskipTests
-      env:
-        MAVEN_OPTS: "-Xmx1024m"
+        name: app-jar
+        path: target
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
@@ -302,7 +302,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ghcr.io/Raze666888/myJavaproject
+        images: ${{ env.IMAGE_NAME }}
         tags: |
           type=ref,event=branch
           type=ref,event=pr
@@ -310,6 +310,7 @@ jobs:
           type=raw,value=latest,enable={{is_default_branch}}
 
     - name: Build and push Docker image
+      id: push
       uses: docker/build-push-action@v5
       with:
         context: .
@@ -323,7 +324,7 @@ jobs:
     - name: Generate artifact attestation
       uses: actions/attest-build-provenance@v1
       with:
-        subject-name: ghcr.io/Raze666888/myJavaproject
+        subject-name: ${{ env.IMAGE_NAME }}
         subject-digest: ${{ steps.push.outputs.digest }}
         push-to-registry: true
 
@@ -338,21 +339,78 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Deploy notification
-      run: |
-        echo "🚀 开始部署到生产环境..."
-        echo "镜像: ghcr.io/Raze666888/myJavaproject:latest"
-        echo "提交: ${{ github.sha }}"
-        echo "分支: ${{ github.ref_name }}"
-        echo "触发者: ${{ github.actor }}"
+    - name: Prepare deployment directory
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.VM_HOST }}
+        username: ${{ secrets.VM_USER }}
+        key: ${{ secrets.VM_SSH_KEY }}
+        port: ${{ secrets.VM_SSH_PORT || 22 }}
+        script: |
+          DEPLOY_PATH="${{ secrets.VM_DEPLOY_PATH }}"
+          if [ -z "$DEPLOY_PATH" ]; then
+            DEPLOY_PATH="/opt/myjavaproject"
+          fi
+          mkdir -p "$DEPLOY_PATH/config"
 
-    # 这里可以添加具体的部署步骤，比如：
-    # - 更新 Kubernetes deployment
-    # - 重启容器服务
-    # - 执行数据库迁移
-    # - 发送部署通知
+    - name: Upload deployment files
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.VM_HOST }}
+        username: ${{ secrets.VM_USER }}
+        key: ${{ secrets.VM_SSH_KEY }}
+        port: ${{ secrets.VM_SSH_PORT || 22 }}
+        source: "docker-compose.prod.yml,config/nginx.conf"
+        target: ${{ secrets.VM_DEPLOY_PATH || '/opt/myjavaproject' }}
+        overwrite: true
 
-    - name: Deployment completed
-      run: |
-        echo "✅ 部署完成！"
-        echo "应用已在生产环境更新"
+    - name: Deploy to Ubuntu VM
+      uses: appleboy/ssh-action@v1.0.3
+      env:
+        IMAGE_NAME: ${{ env.IMAGE_NAME }}
+      with:
+        host: ${{ secrets.VM_HOST }}
+        username: ${{ secrets.VM_USER }}
+        key: ${{ secrets.VM_SSH_KEY }}
+        port: ${{ secrets.VM_SSH_PORT || 22 }}
+        envs: IMAGE_NAME
+        script: |
+          set -e
+          DEPLOY_PATH="${{ secrets.VM_DEPLOY_PATH }}"
+          if [ -z "$DEPLOY_PATH" ]; then
+            DEPLOY_PATH="/opt/myjavaproject"
+          fi
+          cd "$DEPLOY_PATH"
+
+          cat > .env.prod <<'EOF'
+          DB_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }}
+          DB_USERNAME=${{ secrets.DB_USERNAME }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+          SERVER_PORT=7002
+          LOG_FILE=/app/logs/application.log
+          OSS_ENDPOINT=${{ secrets.OSS_ENDPOINT }}
+          OSS_ACCESS_KEY_ID=${{ secrets.OSS_ACCESS_KEY_ID }}
+          OSS_ACCESS_KEY_SECRET=${{ secrets.OSS_ACCESS_KEY_SECRET }}
+          OSS_BUCKET_NAME=${{ secrets.OSS_BUCKET_NAME }}
+          OSS_URL_PREFIX=${{ secrets.OSS_URL_PREFIX }}
+          EOF
+
+          echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
+          docker compose --env-file .env.prod -f docker-compose.prod.yml pull
+          docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --remove-orphans
+          docker image prune -f
+
+          for i in 1 2 3 4 5 6; do
+            if curl -fsS "http://localhost:7002/actuator/health" > /dev/null; then
+              echo "Deployment health check passed."
+              exit 0
+            fi
+            echo "Waiting for application to become healthy... ($i/6)"
+            sleep 10
+          done
+
+          echo "Application failed health check."
+          docker compose --env-file .env.prod -f docker-compose.prod.yml ps
+          docker compose --env-file .env.prod -f docker-compose.prod.yml logs --tail=100 app
+          exit 1
