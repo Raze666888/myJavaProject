@@ -16,22 +16,22 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("common")
 public class CommonController extends BaseController {
     /**
-     * OSS文件上传服务
+     * 文件上传服务
      */
     @Autowired
     private FileUploadService fileUploadService;
 
     /**
-     * 文件上传到OSS
+     * 上传文件到本地存储
      *
      * @param file 上传的文件
-     * @return 上传结果，包含OSS文件URL
+     * @return 上传结果，包含本地访问URL
      */
     @PostMapping("upload")
     public AjaxResult upload(MultipartFile file) {
         try {
-            String ossUrl = fileUploadService.uploadFile(file);
-            return AjaxResult.ok(ossUrl);
+            String fileUrl = fileUploadService.uploadFile(file);
+            return AjaxResult.ok(fileUrl);
         } catch (Exception e) {
             return AjaxResult.error("文件上传失败: " + e.getMessage());
         }

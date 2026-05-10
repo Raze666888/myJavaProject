@@ -15,11 +15,6 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_PASSWORD=${REDIS_PASSWORD:-}
-      - OSS_ENDPOINT=${OSS_ENDPOINT}
-      - OSS_ACCESS_KEY_ID=${OSS_ACCESS_KEY_ID}
-      - OSS_ACCESS_KEY_SECRET=${OSS_ACCESS_KEY_SECRET}
-      - OSS_BUCKET_NAME=${OSS_BUCKET_NAME}
-      - OSS_URL_PREFIX=${OSS_URL_PREFIX}
       - LOG_FILE=${LOG_FILE:-/app/logs/application.log}
       - JAVA_OPTS=-Xms512m -Xmx1024m -XX:+UseG1GC
     depends_on:

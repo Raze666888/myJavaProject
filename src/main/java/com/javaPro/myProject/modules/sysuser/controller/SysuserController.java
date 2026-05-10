@@ -80,10 +80,10 @@ public class SysuserController extends BaseController {
             // 处理文件上传
             if (file != null && !file.isEmpty()) {
                 try {
-                    String ossUrl = fileUploadService.uploadFile(file);
-                    sysuser.setImg(ossUrl);
+                    String fileUrl = fileUploadService.uploadFile(file);
+                    sysuser.setImg(fileUrl);
                 } catch (Exception fileUploadException) {
-                    // 如果OSS上传失败，记录错误但不阻止用户信息更新
+                    // 如果文件上传失败，记录错误但不阻止用户信息更新
                     System.err.println("文件上传失败，但继续更新用户信息: " + fileUploadException.getMessage());
                     // 可以选择保留原有头像或设置默认头像
                     // sysuser.setImg(null); // 如果想清空头像

@@ -127,14 +127,6 @@
             <version>2.11.0</version>
         </dependency>
 
-        <!-- Aliyun OSS SDK (Optional) -->
-        <dependency>
-            <groupId>com.aliyun.oss</groupId>
-            <artifactId>aliyun-sdk-oss</artifactId>
-            <version>3.17.1</version>
-            <optional>true</optional>
-        </dependency>
-
         <!-- Selenium Testing Dependencies -->
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>

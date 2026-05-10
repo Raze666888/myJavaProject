@@ -71,12 +71,6 @@ mybatis:
     map-underscore-to-camel-case: true
 
 # OSS配置
-oss:
-  endpoint: ${OSS_ENDPOINT:http://minio:9000}
-  accessKeyId: ${OSS_ACCESS_KEY_ID:minioadmin}
-  accessKeySecret: ${OSS_ACCESS_KEY_SECRET:minioadmin123}
-  bucketName: ${OSS_BUCKET_NAME:myjavaproject}
-  urlPrefix: ${OSS_URL_PREFIX:http://localhost:9000/myjavaproject/}
 
 # 日志配置
 logging:

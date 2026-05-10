@@ -1,18 +1,19 @@
-# 使用官方OpenJDK 8镜像作为基础镜像
-FROM openjdk:8-jdk-alpine
+# 使用仍然维护且支持多架构的 Java 8 运行时镜像
+FROM eclipse-temurin:8-jre-jammy
 
 # 设置工作目录
 WORKDIR /app
 
-# 设置时区
-RUN apk add --no-cache tzdata && \
-    cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
+# 安装时区和健康检查所需工具
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends tzdata wget && \
+    ln -snf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     echo "Asia/Shanghai" > /etc/timezone && \
-    apk del tzdata
+    rm -rf /var/lib/apt/lists/*
 
 # 创建应用用户（安全最佳实践）
-RUN addgroup -g 1000 appgroup && \
-    adduser -D -s /bin/sh -u 1000 -G appgroup appuser
+RUN groupadd -g 1000 appgroup && \
+    useradd -u 1000 -g appgroup -m -s /bin/bash appuser
 
 # 复制Maven构建的JAR文件
 COPY target/myJavaProject-*.jar app.jar

@@ -389,11 +389,6 @@ jobs:
           REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
           SERVER_PORT=7002
           LOG_FILE=/app/logs/application.log
-          OSS_ENDPOINT=${{ secrets.OSS_ENDPOINT }}
-          OSS_ACCESS_KEY_ID=${{ secrets.OSS_ACCESS_KEY_ID }}
-          OSS_ACCESS_KEY_SECRET=${{ secrets.OSS_ACCESS_KEY_SECRET }}
-          OSS_BUCKET_NAME=${{ secrets.OSS_BUCKET_NAME }}
-          OSS_URL_PREFIX=${{ secrets.OSS_URL_PREFIX }}
           EOF
 
           echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin

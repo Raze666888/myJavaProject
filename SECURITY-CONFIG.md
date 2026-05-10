@@ -10,23 +10,16 @@
 2. 在 `.env` 文件中填入真实的配置信息
 3. 确保 `.env` 文件不被提交到版本控制系统
 
-### 环境变量说明
+### 当前说明
 
-| 变量名 | 说明 | 示例值 |
-|--------|------|--------|
-| OSS_ENABLED | 是否启用OSS | true |
-| OSS_ENDPOINT | OSS端点 | https://oss-cn-shenzhen.aliyuncs.com |
-| OSS_ACCESS_KEY_ID | 阿里云AccessKey ID | 请填入真实值 |
-| OSS_ACCESS_KEY_SECRET | 阿里云AccessKey Secret | 请填入真实值 |
-| OSS_BUCKET_NAME | OSS存储桶名称 | 请填入真实值 |
-| OSS_URL_PREFIX | OSS访问前缀 | https://your-bucket.oss-cn-shenzhen.aliyuncs.com/ |
+项目已切换为本地文件上传，不再依赖阿里云 OSS。
 
 ### 安全注意事项
 
-1. **永远不要**将真实的AccessKey信息提交到代码仓库
-2. 定期轮换AccessKey
-3. 使用最小权限原则配置AccessKey权限
-4. 在生产环境中使用更安全的密钥管理方案
+1. 不要将数据库、Redis、SSH 等生产凭据提交到代码仓库
+2. GitHub Actions 中的生产凭据统一存放在 Secrets
+3. 虚拟机部署账号建议使用最小权限原则
+4. 定期轮换数据库密码、SSH 密钥和 GHCR Token
 
 ### 本地开发配置
 
