@@ -328,84 +328,42 @@ jobs:
         subject-digest: ${{ steps.push.outputs.digest }}
         push-to-registry: true
 
-  # 部署到生产环境
+  # 生产部署交接（手动在本地虚拟机执行）
   deploy-production:
-    name: Deploy to Production
+    name: Prepare Manual Deployment
     runs-on: ubuntu-latest
     needs: build-and-push-docker
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    environment: production
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Prepare deployment directory
-      uses: appleboy/ssh-action@v1.0.3
+    - name: Upload deployment bundle
+      uses: actions/upload-artifact@v4
       with:
-        host: ${{ secrets.VM_HOST }}
-        username: ${{ secrets.VM_USER }}
-        key: ${{ secrets.VM_SSH_KEY }}
-        port: ${{ secrets.VM_SSH_PORT || 22 }}
-        script: |
-          DEPLOY_PATH="${{ secrets.VM_DEPLOY_PATH }}"
-          if [ -z "$DEPLOY_PATH" ]; then
-            DEPLOY_PATH="/opt/myjavaproject"
-          fi
-          mkdir -p "$DEPLOY_PATH/config"
+        name: manual-deployment-bundle
+        path: |
+          docker-compose.prod.yml
+          scripts/deploy-production.sh
+          .env.prod.example
+          config/nginx.conf
+        if-no-files-found: error
+        retention-days: 14
 
-    - name: Upload deployment files
-      uses: appleboy/scp-action@v0.1.7
-      with:
-        host: ${{ secrets.VM_HOST }}
-        username: ${{ secrets.VM_USER }}
-        key: ${{ secrets.VM_SSH_KEY }}
-        port: ${{ secrets.VM_SSH_PORT || 22 }}
-        source: "docker-compose.prod.yml,config/nginx.conf"
-        target: ${{ secrets.VM_DEPLOY_PATH || '/opt/myjavaproject' }}
-        overwrite: true
-
-    - name: Deploy to Ubuntu VM
-      uses: appleboy/ssh-action@v1.0.3
-      env:
-        IMAGE_NAME: ${{ env.IMAGE_NAME }}
-      with:
-        host: ${{ secrets.VM_HOST }}
-        username: ${{ secrets.VM_USER }}
-        key: ${{ secrets.VM_SSH_KEY }}
-        port: ${{ secrets.VM_SSH_PORT || 22 }}
-        envs: IMAGE_NAME
-        script: |
-          set -e
-          DEPLOY_PATH="${{ secrets.VM_DEPLOY_PATH }}"
-          if [ -z "$DEPLOY_PATH" ]; then
-            DEPLOY_PATH="/opt/myjavaproject"
-          fi
-          cd "$DEPLOY_PATH"
-
-          cat > .env.prod <<'EOF'
-          DB_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }}
-          DB_USERNAME=${{ secrets.DB_USERNAME }}
-          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-          REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
-          SERVER_PORT=7002
-          LOG_FILE=/app/logs/application.log
-          EOF
-
-          echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
-          docker compose --env-file .env.prod -f docker-compose.prod.yml pull
-          docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --remove-orphans
-          docker image prune -f
-
-          for i in 1 2 3 4 5 6; do
-            if curl -fsS "http://localhost:7002/actuator/health" > /dev/null; then
-              echo "Deployment health check passed."
-              exit 0
-            fi
-            echo "Waiting for application to become healthy... ($i/6)"
-            sleep 10
-          done
-
-          echo "Application failed health check."
-          docker compose --env-file .env.prod -f docker-compose.prod.yml ps
-          docker compose --env-file .env.prod -f docker-compose.prod.yml logs --tail=100 app
-          exit 1
+    - name: Print manual deployment instructions
+      run: |
+        echo "手动部署包已生成: manual-deployment-bundle"
+        echo "镜像地址: ${{ env.IMAGE_NAME }}:latest"
+        echo "提交SHA: ${{ github.sha }}"
+        echo ""
+        echo "请在 Ubuntu 虚拟机中执行以下步骤："
+        echo "1. 从 Actions 下载 manual-deployment-bundle 并解压到 /opt/myjavaproject"
+        echo "2. 复制 .env.prod.example 为 .env.prod，并填写数据库/Redis 参数"
+        echo "3. 登录 GHCR:"
+        echo "   echo '<GHCR_TOKEN>' | docker login ghcr.io -u '<GHCR_USERNAME>' --password-stdin"
+        echo "4. 进入部署目录后执行:"
+        echo "   chmod +x scripts/deploy-production.sh"
+        echo "   ./scripts/deploy-production.sh latest"
+        echo "5. 验证服务:"
+        echo "   docker compose --env-file .env.prod -f docker-compose.prod.yml ps"
+        echo "   curl http://localhost:7002/actuator/health"

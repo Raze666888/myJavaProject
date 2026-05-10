@@ -62,25 +62,44 @@ SONAR_LOGIN          # SonarQube登录Token（可选）
 # CD部署相关（必需）
 GHCR_TOKEN           # 用于Ubuntu虚拟机拉取GHCR私有镜像（read:packages）
 GHCR_USERNAME        # GitHub用户名
-VM_HOST              # Ubuntu虚拟机IP
-VM_USER              # Ubuntu登录用户
-VM_SSH_KEY           # SSH私钥
-VM_SSH_PORT          # SSH端口（可选，默认22）
-VM_DEPLOY_PATH       # 部署目录（可选，默认/opt/myjavaproject）
-DB_ROOT_PASSWORD     # MySQL root密码
-DB_USERNAME          # 应用数据库用户名
-DB_PASSWORD          # 应用数据库密码
-REDIS_PASSWORD       # Redis密码（可为空）
 ```
 
 ## 环境配置
 
 ### 生产环境 (Production)
-在GitHub项目设置中创建名为 `production` 的环境，用于生产部署的额外保护。
+本项目当前采用“GitHub 构建镜像 + 本地 Ubuntu 虚拟机手动部署”的方式。
 
-**环境设置**:
-- **Environment protection rules**: 启用 "Required reviewers"
-- **Deployment branches**: 限制为 `main` 分支
+### 手动部署步骤
+
+1. 在 GitHub Actions 中等待 `Build and Push Docker Image` 成功
+2. 下载 `manual-deployment-bundle` 制品并上传到 Ubuntu 虚拟机，例如 `/opt/myjavaproject`
+3. 在虚拟机中复制配置文件：
+
+```bash
+cp .env.prod.example .env.prod
+```
+
+4. 编辑 `.env.prod`，填写数据库和 Redis 参数
+5. 登录 GHCR：
+
+```bash
+echo "<GHCR_TOKEN>" | docker login ghcr.io -u "<GHCR_USERNAME>" --password-stdin
+```
+
+6. 执行部署：
+
+```bash
+cd /opt/myjavaproject
+chmod +x scripts/deploy-production.sh
+./scripts/deploy-production.sh latest
+```
+
+7. 验证服务状态：
+
+```bash
+docker compose --env-file .env.prod -f docker-compose.prod.yml ps
+curl http://localhost:7002/actuator/health
+```
 
 ## 工作流日志查看
 
